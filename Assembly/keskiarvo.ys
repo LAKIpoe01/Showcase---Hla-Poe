@@ -1,0 +1,28 @@
+main:
+    irmovq $0, %rdx     #sum
+    irmovq $1, %r9      #vakio 1
+    irmovq $8, %r8      #vakio 8
+    irmovq $0, %rsi     #count
+
+loop:
+    mrmovq (%rsp),%r10  # Taulukon alku (*array)
+    irmovq $0x00, %r11   
+    subq %r10, %r11
+    je keskiarvo
+    
+    addq %r10, %rdx     # lisää alkio 
+    addq %r9, %rsi      # count++
+    addq %r8, %rsp      # seuraava indeksi
+    
+    jmp    loop         # Silmukka palaa alkuun jos count != 0
+    
+keskiarvo:
+    subq %rsi, %rdx     # ka laskeminen
+    jge suurempi        #jos suurempi rax++
+    jmp ohitus          
+suurempi:
+    addq %r9, %rax       #rax++
+    jmp keskiarvo
+ohitus:
+    halt
+    

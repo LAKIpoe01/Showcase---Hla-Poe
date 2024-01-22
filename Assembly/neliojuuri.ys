@@ -1,0 +1,35 @@
+main:
+    irmovq $0, %rax  #vakio 0
+    irmovq $0, %rbp  # res
+    irmovq $1, %rdi  # vakio 1
+    irmovq $1, %r8   # Bit
+
+    rrmovq %r12, %r11    # kopioitu r12 num
+
+neliojuuri:
+    subq %rbp, %r11
+
+    jle laske            # Jos res >= num
+    addq %rdi, %rbp      # res += 1
+    subq %rbp, %r11      # num - res
+
+    addq %r8, %r8        # Bit <<= 1
+    addq %r8, %r8        # Bit <<= 1
+    jmp neliojuuri       # Laske uusi neliojuuri
+
+laske:
+    irmovq $0, %rcx      # rcx = 0
+    rrmovq %rbp, %rcx    # Kopioi rcx
+    jmp pyoristys
+    halt                 # Ohjelma päättyy
+
+pyoristys: 
+    addq %rbp,%r11
+    subq %rax,%r11
+    jl pienempi
+    jmp suurempi
+pienempi:
+    subq %rdi,%rcx
+    halt
+suurempi:
+    halt

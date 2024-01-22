@@ -1,0 +1,111 @@
+# TKJ-harjoitustyö 2023 Fibonacci
+# Hla Poe, opiskelijanro: Y68710503, laki.poe@gmail.com
+# Pohdinta:
+# - Ajonaikaisten käskyjen määrä: 82->riippuen alkion koosta
+# - Optimoinnin tein tavalla: ettei tarvi loopata toista kertaa kertolaskua, kun tarkastelee miinustapausta
+# - Pullonkaula: koodini tarvitsee uuden funktion, jos esimerkiksi tai-tapaus muuttuu, joka ei ole enään (5*x*X-4)
+# - Bittisiirto: addq %rdi, %rdi           # Bit <<= 1
+# - Ei voi optimoida ainakaan minun mielestä. Jos parempaa kertolaskua osaisi käyttää niin ehkä sitten tai jotenkin jakojäännöstä hyödyntää.
+# Tästä alkaa koodi
+   
+main: 
+    irmovq $1, %r9          # vakio 1
+    irmovq $0, %rax         # listan alkio
+    
+    mrmovq (%r11), %r13     # aloitetaan taulukon lukeminen
+    
+    
+loop:    # alkioiden neliöjuuren tarkistus
+    irmovq  $0, %r14        # lopetusmerkki
+    subq %r11, %r14         # tarkista, onko lista loppunut
+    je end                  # jos on, lopeta
+    
+    irmovq  $0, %r14        # lopetusmerkki
+    
+    rrmovq %r13, %rax       # lisää alkio rax rekisteriin
+    rrmovq %rax, %rdx       # kopio rax rekisterin alkiosta = num
+
+    irmovq $4, %r8          # alustetaan r8 = 4
+    
+    jmp kertolasku
+kertolasku:
+    addq %rdx, %rax         # 5*x
+    subq %r9, %r8
+    je alustus
+    jmp kertolasku
+alustus:
+    rrmovq %rax, %rdi       # alustetaan x*x varten
+    rrmovq %r13, %rdx       # alustetaan x*x varten
+    subq %r9, %rdx          
+    jmp toinen
+toinen:
+    addq %rdi, %rax         # x*x
+    subq %r9, %rdx     
+    je alustuskaks
+    jl  hihii 
+    jmp toinen  
+hihii:
+    subq %rdi, %rax         # palautetaan 5*x*x ja jatketaan
+    jmp alustuskaks
+alustuskaks:
+    irmovq $0, %rbp         # tulos neliojuuri = res
+    irmovq $1, %rdi         # bit 
+    rrmovq %rax, %rdx       # kopio rax rekisterin alkiosta = num
+    irmovq $4, %r8          # alustetaan r8 = 4
+    addq %r8, %rdx
+    addq %r8, %rax
+neliojuuri:
+    subq %rbp, %rdx
+    jle juuri               # res >= taulukon alkio
+    
+    addq %r9, %rbp          # rax alkio += 1
+    subq %rbp, %rdx         # num - res
+    
+    addq %rdi, %rdi           # Bit <<= 1
+    addq %rdi, %rdi           # Bit <<= 1
+    jmp neliojuuri          # Laske uusi neliojuuri
+
+juuri:
+    irmovq $0, %rcx         # rcx = 0
+    rrmovq %rbp, %rcx       # Kopoidaan res = rcx
+    rrmovq %rcx, %rdi       # kopioidaan vastaus s*s=x varten
+    jmp pyoristys
+    
+pyoristys:
+    irmovq $0, %rsi         # vakio 0
+    addq %rbp,%rdx          # jos pyöristys on tehty ylös päin -> jmp pienempi 
+    subq %rsi,%rdx
+    jl pienempi
+    jmp suurempi
+    
+pienempi:
+    subq %r9, %rcx          # pyöristetään takaisin alas
+    subq %r9, %rbp
+    jmp laske
+suurempi:
+    subq %r9, %rbp
+    jmp laske
+laske:
+    addq %rdi, %rcx         # s*s=x
+    subq %r9, %rbp          
+    je yhtasuuri
+    jmp laske 
+yhtasuuri:
+    subq %rcx, %rax         # jos plus laskulla yhtäsuuri = palaa main
+    je seukki
+    
+    subq %r8, %rax          # jos miinuksella yhtäsuuri = palaa main
+    subq %r8, %rax
+    je seukki
+    
+    rrmovq %r13, %rax       # lisää alkio rax rekisteriin
+    halt                    # lopeta ohjelma
+    
+seukki:
+    irmovq $8, %r8          # alusta r8 = 8
+    addq %r8, %r11          # seuraava alkio listasta
+    jmp main
+end:
+    halt                    # lopeta ohjelma
+.pos 0x700
+array:

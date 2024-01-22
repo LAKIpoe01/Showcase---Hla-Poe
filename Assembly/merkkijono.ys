@@ -1,0 +1,20 @@
+main:   
+    irmovq taulukko, %rdi   #Asetetaan osoitin merkkijonon alkuun (%rdi)
+    irmovq $0, %rax         #nollataan %rax
+    irmovq $8, %r8          #vakio 8 = r8
+    irmovq $1, %r11         #vakio 1 = r11
+    
+loop: 
+    mrmovq (%rdi), %r9      #lue merkkijonon arvo 
+
+    
+    irmovq  $0x00, %r10
+    subq %r9, %r10
+    je end
+    
+    addq %r11, %rax
+    addq %r8, %rdi
+    jmp loop
+    
+end:
+    halt

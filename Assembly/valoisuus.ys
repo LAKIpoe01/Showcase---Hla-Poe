@@ -1,0 +1,26 @@
+main:
+    irmovq $1, %r8     # vakio 1
+    irmovq $4096, %r9   # f^3 bittioperaatio siirto > 3
+    rrmovq %r13, %r14   # kopio 
+    
+    # Extract R[11:0] bits
+    irmovq $0xFFF, %r10     # maski R[11:0]
+    andq %r10, %r13
+
+    # Extract E[3:0] bits
+    irmovq $0xFFFFFFFFFFFFF000, %r11    # maski E[3:0]
+    andq %r11, %r14
+    jmp siirto
+
+siirto:
+    subq %r9, %r14      
+    jge suurempi
+    jmp ohitus
+
+suurempi:
+    addq %r8, %rax
+    jmp siirto
+
+ohitus:
+    rrmovq %rax, %r14   
+    halt

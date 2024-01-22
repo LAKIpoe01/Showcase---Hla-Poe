@@ -1,0 +1,50 @@
+main:
+    irmovq $1, %r9          #vakio 1
+    irmovq $8, %r8          #vakio 8
+    
+    irmovq $0, %rsi         #pienin
+    irmovq $0, %rdi         #suurin
+    
+    irmovq $0, %rdx         #muisti1
+    irmovq $0, %r13         #muisti2
+    
+    irmovq $10000, %r12     #isoin vertailu
+    irmovq $-10000, %rax    #pienin vertailu
+
+loop:
+    mrmovq (%rsp),%r10  # Taulukon alku (*array)
+    irmovq $0x00, %r11
+    subq %r10, %r11     #onko lista loppu
+    je end
+    
+    rrmovq %r10, %rdx   #muisti1
+    rrmovq %r10, %r13   #muisti2
+    
+    jmp laskesuuri
+    
+laskesuuri:
+    subq %rax, %rdx     #vertaa edellinen alkio seuraavalla 
+    jg suurempi          
+    
+laskepieni:
+    subq %r12, %r13     #vertaa edellinen alkio seuraavalla   
+    jl pienempi     
+    jmp loppu
+    
+loppu:
+    addq %r8, %rsp      # seuraava indeksi
+    jmp loop
+    
+suurempi:
+    rrmovq %r10, %rdi   #vaihda suurempi
+    rrmovq %r10, %rax   #vaihda suurin vertailija
+    jmp laskepieni
+    
+pienempi:
+    rrmovq %r10, %rsi   #vaihda pienin luku
+    rrmovq %r10, %r12   #vaihda pienin vertailija
+    jmp loppu
+    
+end:
+    halt
+    
